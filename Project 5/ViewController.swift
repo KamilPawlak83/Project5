@@ -86,7 +86,7 @@ class ViewController: UITableViewController {
         if isPossible(word: lowerAnswer) {
             if isOriginal(word: lowerAnswer) {
                 if isReal(word: lowerAnswer) {
-                    usedWords.insert(answerKP, at: 0)
+                    usedWords.insert(lowerAnswer, at: 0)
                     
                     // save table
                     let defaults = UserDefaults.standard
