@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UITableViewController {
+class MainViewController: UITableViewController {
 
     var allWords = [String]()
     var usedWords = [String]()
@@ -18,7 +18,6 @@ class ViewController: UITableViewController {
     
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptForAnswer))
      
-        
         loadData()
         updateBar()
         
