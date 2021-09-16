@@ -11,20 +11,16 @@ class ViewController: UITableViewController {
 
     var allWords = [String]()
     var usedWords = [String]()
-    var titleKP = ""
     var score = 0
- 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptForAnswer))
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "New Game", style: .plain, target: self, action: #selector(startGame))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "NewGame", style: .plain, target: self, action: #selector(startGame))
         
         loadData()
         updateBar()
-        
         
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
@@ -35,8 +31,6 @@ class ViewController: UITableViewController {
         if allWords.isEmpty {
             allWords = ["Angelika"]
         }
-        
-       
     }
     
     @objc func startGame() {
@@ -76,32 +70,33 @@ class ViewController: UITableViewController {
             guard let answer = ac?.textFields?[0].text else {return}
             self?.submit(answer)
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         ac.addAction(submitAction)
+        ac.addAction(cancelAction)
         present(ac, animated: true)
     }
     
-    func submit(_ answerKP: String) {
-        let lowerAnswer = answerKP.lowercased()
+    func submit(_ answer: String) {
+        let lowerAnswer = answer.lowercased()
         
         if isPossible(word: lowerAnswer) {
             if isOriginal(word: lowerAnswer) {
                 if isReal(word: lowerAnswer) {
                     usedWords.insert(lowerAnswer, at: 0)
                     
-                    // save table
+                    // save array
                     let defaults = UserDefaults.standard
                     defaults.set(usedWords, forKey: "UsedWords")
                     
                     //Reload only first row
-                    let indexPathKP = IndexPath(row: 0, section: 0)
-                    tableView.insertRows(at: [indexPathKP], with: .automatic)
+                    let indexPath = IndexPath(row: 0, section: 0)
+                    tableView.insertRows(at: [indexPath], with: .automatic)
                     
-                    score = score + answerKP.count
+                    score = score + answer.count
                     
                     defaults.set(score, forKey: "Score")
                     
                     updateBar()
-                    
                     
                     return
                     
@@ -114,9 +109,7 @@ class ViewController: UITableViewController {
             }
         } else {
             showErrorMessage(errorTitle: "Incorrect Word", errorMessage: "Choose proper letters")
-           
         }
-         
     }
     
     func isPossible(word: String) -> Bool {
@@ -152,22 +145,19 @@ class ViewController: UITableViewController {
     }
     
     func showErrorMessage(errorTitle: String, errorMessage: String) {
-        let acKP = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "I will try again", style: .cancel)
-        acKP.addAction(cancelAction)
-        
-        present(acKP, animated: true)
+        ac.addAction(cancelAction)
+        present(ac, animated: true)
     }
     
     func updateBar() {
-        
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let text1 = UIBarButtonItem(title: "score:\(score)", image: nil, primaryAction: nil, menu: .none)
-        let text2 = UIBarButtonItem(title: "words:\(usedWords.count)", image: nil, primaryAction: nil, menu: .none)
-      
-        toolbarItems = [spacer, text1, spacer, text2, spacer]
-        navigationController?.isToolbarHidden = false
+        let score = UIBarButtonItem(title: "Score:\(score)", image: nil, primaryAction: nil, menu: .none)
+        let numberOfWords = UIBarButtonItem(title: "Words:\(usedWords.count)", image: nil, primaryAction: nil, menu: .none)
         
+        toolbarItems = [spacer, score, spacer, numberOfWords, spacer]
+        navigationController?.isToolbarHidden = false
     }
     
     func loadData() {
@@ -175,7 +165,6 @@ class ViewController: UITableViewController {
         title = defaults.string(forKey: "Title")
         usedWords = defaults.object(forKey: "UsedWords") as? [String] ?? [String]()
         score = defaults.integer(forKey: "Score")
-        
     }
         
 }
