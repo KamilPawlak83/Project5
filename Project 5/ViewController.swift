@@ -17,7 +17,7 @@ class ViewController: UITableViewController {
         super.viewDidLoad()
     
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptForAnswer))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "NewGame", style: .plain, target: self, action: #selector(startGame))
+     
         
         loadData()
         updateBar()
@@ -29,15 +29,17 @@ class ViewController: UITableViewController {
         }
         
         if allWords.isEmpty {
-            allWords = ["Angelika"]
+            allWords = ["KNOWINGS"]
         }
     }
     
     @objc func startGame() {
         
-        let defaults = UserDefaults.standard
+        if let uppercaseTitle = allWords.randomElement()?.uppercased() {
+        title = uppercaseTitle
+        }
         
-        title = allWords.randomElement()
+        let defaults = UserDefaults.standard
         defaults.set(title, forKey: "Title")
         
         usedWords.removeAll(keepingCapacity: true)
@@ -153,10 +155,11 @@ class ViewController: UITableViewController {
     
     func updateBar() {
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let newGame = UIBarButtonItem(title: "New Game", style: .plain, target: self, action: #selector(startGame))
         let score = UIBarButtonItem(title: "Score:\(score)", image: nil, primaryAction: nil, menu: .none)
         let numberOfWords = UIBarButtonItem(title: "Words:\(usedWords.count)", image: nil, primaryAction: nil, menu: .none)
         
-        toolbarItems = [spacer, score, spacer, numberOfWords, spacer]
+        toolbarItems = [newGame, spacer, score, spacer, numberOfWords, spacer]
         navigationController?.isToolbarHidden = false
     }
     
