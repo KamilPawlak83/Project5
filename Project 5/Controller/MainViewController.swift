@@ -12,6 +12,7 @@ class MainViewController: UITableViewController {
     var allWords = [String]()
     var usedWords = [String]()
     var score = 0
+    var highscores = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,9 +31,20 @@ class MainViewController: UITableViewController {
         if allWords.isEmpty {
             allWords = ["KNOWINGS"]
         }
+        let defaults = UserDefaults.standard
+        highscores = defaults.object(forKey:"Highscores") as? [String] ?? [String]()
+        
     }
     
     @objc func startGame() {
+        
+        if score > 3 {
+            let defaults = UserDefaults.standard
+            highscores.append("\(score) points for word: \(title ?? "No title")")
+            defaults.set(highscores, forKey: "Highscores")
+            
+        }
+        
         
         if let uppercaseTitle = allWords.randomElement()?.uppercased() {
         title = uppercaseTitle
@@ -155,10 +167,10 @@ class MainViewController: UITableViewController {
     func updateBar() {
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let newGame = UIBarButtonItem(title: "New Game", style: .plain, target: self, action: #selector(startGame))
-        let score = UIBarButtonItem(title: "Score:\(score)", image: nil, primaryAction: nil, menu: .none)
+        let score = UIBarButtonItem(title: "Score:\(score)", style: .plain, target: self, action: #selector(scoreButtonPressed))
         let numberOfWords = UIBarButtonItem(title: "Words:\(usedWords.count)", image: nil, primaryAction: nil, menu: .none)
         
-        toolbarItems = [newGame, spacer, score, spacer, numberOfWords, spacer]
+        toolbarItems = [newGame, spacer, score, spacer, numberOfWords]
         navigationController?.isToolbarHidden = false
     }
     
@@ -168,6 +180,25 @@ class MainViewController: UITableViewController {
         usedWords = defaults.object(forKey: "UsedWords") as? [String] ?? [String]()
         score = defaults.integer(forKey: "Score")
     }
+    
+    @objc func scoreButtonPressed() {
+        self.performSegue(withIdentifier: "goToHighScore", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToHighScore" {
+            let destinationVC = segue.destination as! HighScoreViewController
+            destinationVC.highScoreArray = highscores
+            if score > 3 && title != nil {
+                destinationVC.highScoreArray.append("\(score) points for word: \(title ?? "No title")")
+                
+            }
+        }
+    }
+    
+    
         
 }
+
+
 
