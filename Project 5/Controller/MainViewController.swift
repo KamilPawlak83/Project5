@@ -137,7 +137,7 @@ class MainViewController: UITableViewController {
         if score > 2 {
             let defaults = UserDefaults.standard
             highScorePoints.append("\(score) points for the word: \(title ?? "No title")")
-            defaults.set(highScorePoints, forKey: "HighScorePointsKP2")
+            defaults.set(highScorePoints, forKey: "HighScorePoints")
             
             // if score > 0 that means that usedWords.count > 0
             if usedWords.count == 1 {
@@ -145,7 +145,7 @@ class MainViewController: UITableViewController {
             } else {
                 highScoreWords.append("\(usedWords.count) words in the word: \(title ?? "No title")") // plural for words
             }
-            defaults.set(highScoreWords, forKey: "HighScoreWordsKP2")
+            defaults.set(highScoreWords, forKey: "HighScoreWords")
         }
         
         if let uppercaseTitle = allWords.randomElement()?.uppercased() {
