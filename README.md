@@ -14,8 +14,8 @@ You have to create new words during this rules:
 - during the game You have to be happy :D
 
 I added several important features like:
-* high score for score(points) and uesed words (I used UserDefaults)
-* 2 new VC for highscores lists, 
+* High score for score(points) and used words (I used UserDefaults)
+* 2 new VC for highscores lists (score, used words), 
 * New game button, 
 * New buttons that show Us current score/usedwords and send Us to new controllers (and ToolBar for these buttons)
 * I copeed with bug about lowercase letters (Swift and swift now it's the same)
@@ -23,8 +23,9 @@ I added several important features like:
 
 ### What We can learn from this code
 
+* TableView and TableViewController
 * UserDefaults
-* How We can use 2 diffrent segue
+* How We can use 2 different segue
 * How to sort String values that contains Int (text10.txt should be after text9.txt) 
 * ToolBar
 * how to add TextField to allertController
@@ -32,4 +33,5 @@ I added several important features like:
 
 ### UI example
 
-//To do
+
+
