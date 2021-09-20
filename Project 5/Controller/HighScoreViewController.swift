@@ -13,8 +13,6 @@ class HighScoreViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
     }
 
     // MARK: - Table view data source
@@ -25,11 +23,10 @@ class HighScoreViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Score", for: indexPath)
-        cell.textLabel?.text = highScoreArray.sorted()[indexPath.row]
+        let sortedHighScoreArray = highScoreArray.sorted { (lhs: String, rhs: String) -> Bool in
+            return lhs.localizedStandardCompare(rhs) == .orderedDescending // the highest result is on he top
+        }
+        cell.textLabel?.text = sortedHighScoreArray[indexPath.row]
         return cell
-    }
-    
-    func sortArray() {
-        
     }
 }

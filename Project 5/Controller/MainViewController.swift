@@ -12,7 +12,8 @@ class MainViewController: UITableViewController {
     var allWords = [String]()
     var usedWords = [String]()
     var score = 0
-    var highscores = [String]()
+    var highScorePoints = [String]()
+    var highScoreWords = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,38 +32,13 @@ class MainViewController: UITableViewController {
         if allWords.isEmpty {
             allWords = ["KNOWINGS"]
         }
-        let defaults = UserDefaults.standard
-        highscores = defaults.object(forKey:"Highscores") as? [String] ?? [String]()
         
+        let defaults = UserDefaults.standard
+        highScorePoints = defaults.object(forKey:"HighScorePoints") as? [String] ?? [String]()
+        highScoreWords = defaults.object(forKey: "HighScoreWords") as? [String] ?? [String]()
     }
     
-    @objc func startGame() {
-        
-        if score > 3 {
-            let defaults = UserDefaults.standard
-            highscores.append("\(score) points for word: \(title ?? "No title")")
-            defaults.set(highscores, forKey: "Highscores")
-            
-        }
-        
-        
-        if let uppercaseTitle = allWords.randomElement()?.uppercased() {
-        title = uppercaseTitle
-        }
-        
-        let defaults = UserDefaults.standard
-        defaults.set(title, forKey: "Title")
-        
-        usedWords.removeAll(keepingCapacity: true)
-        defaults.set(usedWords, forKey: "UsedWords")
-        
-        score = 0
-        defaults.set(score, forKey: "Score")
-        
-        updateBar()
-        tableView.reloadData()
-       
-    }
+    //MARK: - Table View Secton
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return usedWords.count
@@ -73,6 +49,8 @@ class MainViewController: UITableViewController {
         cell.textLabel?.text = usedWords[indexPath.row]
         return cell
     }
+    
+    //MARK: - Functions that check if the answer is proper
     
     @objc func promptForAnswer() {
         let ac = UIAlertController(title: "Enter Answer", message: nil, preferredStyle: .alert)
@@ -97,7 +75,6 @@ class MainViewController: UITableViewController {
                 if isReal(word: lowerAnswer) {
                     usedWords.insert(lowerAnswer, at: 0)
                     
-                    // save array
                     let defaults = UserDefaults.standard
                     defaults.set(usedWords, forKey: "UsedWords")
                     
@@ -106,11 +83,8 @@ class MainViewController: UITableViewController {
                     tableView.insertRows(at: [indexPath], with: .automatic)
                     
                     score = score + answer.count
-                    
                     defaults.set(score, forKey: "Score")
-                    
                     updateBar()
-                    
                     return
                     
                 } else {
@@ -118,7 +92,6 @@ class MainViewController: UITableViewController {
                 }
             } else {
                 showErrorMessage(errorTitle: "Word already exist", errorMessage: "Word is already in your table")
-             
             }
         } else {
             showErrorMessage(errorTitle: "Incorrect Word", errorMessage: "Choose proper letters")
@@ -157,6 +130,41 @@ class MainViewController: UITableViewController {
         }
     }
     
+    //MARK: - Functions
+    
+    @objc func startGame() {
+        
+        if score > 2 {
+            let defaults = UserDefaults.standard
+            highScorePoints.append("\(score) points for the word: \(title ?? "No title")")
+            defaults.set(highScorePoints, forKey: "HighScorePointsKP2")
+            
+            // if score > 0 that means that usedWords.count > 0
+            if usedWords.count == 1 {
+                highScoreWords.append("\(usedWords.count) word in the word: \(title ?? "No title")") // singular for word
+            } else {
+                highScoreWords.append("\(usedWords.count) words in the word: \(title ?? "No title")") // plural for words
+            }
+            defaults.set(highScoreWords, forKey: "HighScoreWordsKP2")
+        }
+        
+        if let uppercaseTitle = allWords.randomElement()?.uppercased() {
+        title = uppercaseTitle
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(title, forKey: "Title")
+        
+        usedWords.removeAll(keepingCapacity: true)
+        defaults.set(usedWords, forKey: "UsedWords")
+        
+        score = 0
+        defaults.set(score, forKey: "Score")
+        
+        updateBar()
+        tableView.reloadData()
+    }
+    
     func showErrorMessage(errorTitle: String, errorMessage: String) {
         let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "I will try again", style: .cancel)
@@ -168,7 +176,7 @@ class MainViewController: UITableViewController {
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let newGame = UIBarButtonItem(title: "New Game", style: .plain, target: self, action: #selector(startGame))
         let score = UIBarButtonItem(title: "Score:\(score)", style: .plain, target: self, action: #selector(scoreButtonPressed))
-        let numberOfWords = UIBarButtonItem(title: "Words:\(usedWords.count)", image: nil, primaryAction: nil, menu: .none)
+        let numberOfWords = UIBarButtonItem(title: "Words:\(usedWords.count)", style: .plain, target: self, action: #selector(wordsButtonPressed))
         
         toolbarItems = [newGame, spacer, score, spacer, numberOfWords]
         navigationController?.isToolbarHidden = false
@@ -181,23 +189,35 @@ class MainViewController: UITableViewController {
         score = defaults.integer(forKey: "Score")
     }
     
+    //MARK: - Segue section
+    
     @objc func scoreButtonPressed() {
         self.performSegue(withIdentifier: "goToHighScore", sender: self)
+    }
+    
+    @objc func wordsButtonPressed() {
+        self.performSegue(withIdentifier: "goToWordsHighResult", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToHighScore" {
             let destinationVC = segue.destination as! HighScoreViewController
-            destinationVC.highScoreArray = highscores
-            if score > 3 && title != nil {
-                destinationVC.highScoreArray.append("\(score) points for word: \(title ?? "No title")")
-                
+            destinationVC.highScoreArray = highScorePoints
+            if score > 2  {
+                destinationVC.highScoreArray.append("\(score) points - CURRENT SCORE")
+            }
+        }
+        if segue.identifier == "goToWordsHighResult" {
+            let destinationVC = segue.destination as! WordsHighResultViewController
+            destinationVC.wordsHighResultArray = highScoreWords
+            if usedWords.count == 1 {
+                destinationVC.wordsHighResultArray.append("\(usedWords.count) word - CURRENT SCORE") // singular
+            }
+            if usedWords.count > 1 {
+                destinationVC.wordsHighResultArray.append("\(usedWords.count) words - CURRENT SCORE") // plural
             }
         }
     }
-    
-    
-        
 }
 
 
